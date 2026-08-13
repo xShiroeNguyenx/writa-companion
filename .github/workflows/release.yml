@@ -107,9 +107,21 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Chỉ **đọc** cache, do `ci.yml` ghi trên `main`. `shared-key` phải trùng từng ký tự
+      # với bên đó, nếu không thì rust-cache sinh khoá theo tên job và hai bên không bao
+      # giờ gặp nhau.
+      #
+      # `save-if: false` vì cache ghi từ đây là vô dụng: GitHub phân vùng cache theo ref,
+      # nên cache tạo trên `refs/tags/v0.1.3` không một tag nào khác đọc được. Ghi nó chỉ
+      # tốn thêm thời gian nén và upload vài GB cho một thứ dùng đúng không lần nào.
+      #
+      # Suy ra một điều kiện tiên quyết: `ci.yml` phải **xanh** trên `main` trước khi đẩy
+      # tag. CI đỏ thì không có cache nào được ghi, và bản phát hành lại dựng từ đầu — đúng
+      # tình trạng của v0.1.0 tới v0.1.3.
       - uses: Swatinem/rust-cache@v2
         with:
-          key: lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
+          shared-key: writa-lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
+          save-if: false
 
       - run: npm ci
 

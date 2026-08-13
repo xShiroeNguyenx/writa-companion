@@ -47,15 +47,37 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Job này là **nơi duy nhất ghi cache cargo** cho cả repo, và `release.yml` sống nhờ
+      # nó. Lý do nằm ở luật phân vùng cache của GitHub: một run chỉ đọc được cache do
+      # nhánh của chính nó hoặc nhánh mặc định tạo ra. Bản phát hành chạy trên ref `refs/
+      # tags/v*`, tức mỗi tag là một vùng riêng — nên cache của v0.1.0 vô hình với v0.1.1.
+      # Chỉ cache tạo trên `main` là mọi tag đều đọc được.
+      #
+      # Kèm thêm: `cache-on-failure` mặc định là false. Nên trong suốt thời gian job này
+      # còn đỏ vì lỗi `ui/dist` ở trên, nó chưa từng ghi cache lần nào, và mọi bản phát
+      # hành đều dựng từ đầu — đúng như số đo: 10,2 / 10,1 / 9,8 / 9,9 phút cho bốn lần.
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
-          # `writa-core` nhúng ~26 MB TSV bằng `include_str!`, nên mỗi lần lexicon đổi là
-          # phải biên dịch lại. Tách khoá cache theo nội dung lexicon để lần đổi đó không
-          # làm hỏng cache của mọi crate khác.
-          key: lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
+          # `shared-key` thay cho phần khoá tự sinh theo tên job, để `release.yml` trỏ
+          # được vào đúng cache này. Dùng `key` thì không đủ: nó chỉ *thêm* vào phần khoá
+          # theo job, mà tên job hai bên khác nhau (`check` với `release`).
+          #
+          # `writa-core` nhúng ~26 MB TSV bằng `include_str!`, nên lexicon đổi là phải
+          # biên dịch lại — đưa hash lexicon vào khoá để lần đó không làm hỏng cache của
+          # mọi crate khác.
+          shared-key: writa-lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
 
       - run: npm ci
+
+      # Phải dựng frontend TRƯỚC mọi lệnh cargo nào chạm tới `writa-app`.
+      #
+      # `tauri::generate_context!` là proc macro: nó đọc `frontendDist` *lúc biên dịch* và
+      # panic nếu `ui/dist` chưa tồn tại. Nên `cargo clippy` cũng vỡ, dù clippy chẳng liên
+      # quan gì tới frontend. Ở máy phát triển thì `ui/dist` luôn sẵn từ lần dựng trước,
+      # nên lỗi này chỉ hiện ra trên runner sạch — đúng loại lỗi CI tồn tại để bắt.
+      - name: Kiểu TypeScript + dựng frontend
+        run: npm run build
 
       - name: Định dạng
         run: cargo fmt --all -- --check
@@ -66,9 +88,15 @@ jobs:
       - name: Test
         run: cargo test --workspace
 
-      - name: Kiểu TypeScript + dựng frontend
-        run: npm run build
-
+      # Bước này có hai việc, và việc thứ hai mới là việc đắt tiền nó trả lại được.
+      #
+      # Một: bắt lỗi chỉ xuất hiện ở profile release (`lto = true` gộp toàn bộ đồ thị
+      # dependency, thứ mà `cargo test` ở profile dev không chạm tới).
+      #
+      # Hai: nó dựng **dependency ở profile release** rồi để lại trong cache. `release.yml`
+      # dựng cùng profile đó, nên nó khỏi phải dựng lại — chính là chỗ tiết kiệm phần lớn
+      # thời gian phát hành. Đó cũng là lý do đừng bỏ bước này đi cho CI nhanh: bỏ nó chỉ
+      # là chuyển 5 phút từ đây sang mỗi lần phát hành.
       - name: Dựng app (không đóng gói)
         run: cargo build --release -p writa-app
 
