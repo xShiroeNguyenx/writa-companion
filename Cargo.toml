@@ -10,10 +10,10 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/NGUYENKHANH/writa"
+repository = "https://github.com/ShiroeNguyen/writa"
 # 1.82 vì dùng Option::is_none_or — đọc rõ hơn map_or(true, …) đáng kể.
 rust-version = "1.82"
 

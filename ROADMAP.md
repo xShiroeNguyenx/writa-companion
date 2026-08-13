@@ -36,6 +36,22 @@ Những gì đã có và đã đo:
 - [ ] **Đặt secret cho CI** — xem bảng đầu `.github/workflows/release.yml`.
 - [ ] **Thử cài thật** installer một lần: cài, chạy, gỡ.
 
+### Thử tính năng tự cập nhật
+
+Chỉ thử được **sau khi** đã có hai bản phát hành công khai, vì endpoint và khoá công khai
+được nhúng vào file thực thi lúc dựng — không có cách nào chuyển hướng nó lúc chạy.
+
+1. Phát hành `v0.1.0`, **bấm Publish** (nháp không tính là "latest" — xem ghi chú trong
+   `release.yml`), tải installer về cài.
+2. `.\scripts\bump-version.ps1 0.1.1` → commit → tag `v0.1.1` → push tag.
+3. Publish bản `v0.1.1`.
+4. Mở Cài đặt của bản đang cài → **Kiểm tra ngay**. Hoặc chỉ mở app rồi đợi 90 giây
+   (`STARTUP_DELAY_SECS`) nếu muốn thử luôn cả đường kiểm tra tự động.
+
+Ba chỗ hay làm nó im lặng, xếp theo tần suất: bản phát hành còn ở dạng nháp; version
+trong `tauri.conf.json` không khớp tag; `latest.json` thiếu trong bản phát hành (nghĩa là
+`TAURI_SIGNING_PRIVATE_KEY` chưa đặt, vì `tauri-action` chỉ sinh nó khi có chữ ký).
+
 ### Nên làm trước khi mời người ngoài dùng
 
 - [ ] **Đo Windows Defender.** Máy phát triển dùng ESET nên Defender bị vô hiệu hoá và

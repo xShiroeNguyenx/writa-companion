@@ -86,6 +86,12 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "Writa ${{ github.ref_name }}"
+          # Bản phát hành ra ở dạng **nháp** để còn xem lại trước khi công khai.
+          #
+          # Nhớ kỹ: nháp thì **chưa phải "latest"**. Endpoint cập nhật trỏ
+          # `releases/latest/download/latest.json`, nên chừng nào chưa bấm Publish thì
+          # app của user vẫn báo "đang là bản mới nhất" — không có lỗi nào hiện ra, chỉ
+          # là im lặng. Dựng xong thì phải vào Releases bấm Publish.
           releaseDraft: true
           prerelease: false
           # `latest.json` là thứ tính năng tự cập nhật đọc. `tauri-action` sinh và tải nó

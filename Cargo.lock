@@ -1634,7 +1634,7 @@ dependencies = [
 
 [[package]]
 name = "ime-probe"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "windows",
 ]
@@ -5028,7 +5028,7 @@ checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
 
 [[package]]
 name = "writa-ai"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -5038,7 +5038,7 @@ dependencies = [
 
 [[package]]
 name = "writa-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -5054,21 +5054,21 @@ dependencies = [
 
 [[package]]
 name = "writa-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "writa-core",
 ]
 
 [[package]]
 name = "writa-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "unicode-normalization",
 ]
 
 [[package]]
 name = "writa-win"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "windows",
  "writa-core",
