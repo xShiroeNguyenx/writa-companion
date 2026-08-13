@@ -1,7 +1,7 @@
 {
   "name": "writa",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "description": "Sửa lỗi chính tả tiếng Việt ở mọi ô nhập trên Windows",
   "scripts": {

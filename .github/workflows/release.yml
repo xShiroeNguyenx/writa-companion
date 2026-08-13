@@ -1,4 +1,21 @@
-# Dựng installer và tạo bản phát hành khi đẩy tag `v*`.
+# Dựng installer và **công khai** bản phát hành khi đẩy tag `v*`. Không cần bấm gì bằng tay.
+#
+# ## Hệ quả: đẩy tag là hành động không lùi lại được
+#
+# Trước đây bản phát hành ra ở dạng nháp, và cái nút Publish chính là lần rà cuối của con
+# người. Giờ không còn nữa — tag đi là bản phát hành lên, nên **thứ tự đẩy trở thành cổng
+# kiểm tra duy nhất**:
+#
+#   git push origin main        # đợi CI xanh
+#   git push origin v0.1.3     # rồi mới đẩy tag
+#
+# Đẩy cả hai cùng lúc (`git push origin main v0.1.3`) thì `ci.yml` và workflow này chạy
+# song song, mà workflow này lâu hơn không đáng kể — nên hoàn toàn có thể có một bản phát
+# hành công khai từ một commit mà test vừa báo đỏ. Tách hai lệnh không tốn thêm giây CI
+# nào; nó chỉ đòi sự kiên nhẫn.
+#
+# Hai phép kiểm rẻ nhất thì đặt ngay trong workflow này (endpoint khớp repo, tag khớp
+# version) vì cả hai đều thất bại trong im lặng và không test nào bắt được.
 #
 # ## Bí mật cần đặt trước
 #
@@ -39,6 +56,13 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 60
 
+    env:
+      # Chạy bằng `workflow_dispatch` thì tag đến từ input, chạy bằng push tag thì đến từ
+      # ref. Gộp vào một chỗ để hai đường không lệch nhau — trước đây input `version`
+      # được khai báo nhưng không ai đọc, nên `workflow_dispatch` dựng ra một bản phát
+      # hành mang tên nhánh.
+      TAG: ${{ inputs.version || github.ref_name }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -68,15 +92,13 @@ jobs:
           }
           Write-Output "endpoint OK  $ep"
 
-          if ($env:GITHUB_REF -like "refs/tags/*") {
-            $tag = $env:GITHUB_REF_NAME
-            if ($tag -ne "v$($conf.version)") {
-              Write-Output "::error::Tag $tag khong khop version $($conf.version) trong tauri.conf.json."
-              Write-Output "::error::Chay: .\scripts\bump-version.ps1 $($tag.TrimStart('v'))"
-              exit 1
-            }
-            Write-Output "version OK   $tag"
+          if ($env:TAG -ne "v$($conf.version)") {
+            Write-Output "::error::Tag $env:TAG khong khop version $($conf.version) trong tauri.conf.json."
+            Write-Output "::error::latest.json se tro vao mot ten file khong ton tai."
+            Write-Output "::error::Chay: .\scripts\bump-version.ps1 $($env:TAG.TrimStart('v'))"
+            exit 1
           }
+          Write-Output "version OK   $env:TAG"
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -120,14 +142,20 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "Writa ${{ github.ref_name }}"
-          # Bản phát hành ra ở dạng **nháp** để còn xem lại trước khi công khai.
+          tagName: ${{ env.TAG }}
+          releaseName: "Writa ${{ env.TAG }}"
+          # Vẫn dựng ra dạng **nháp**, nhưng không phải để chờ người bấm — bước
+          # "Công khai bản phát hành" ở dưới sẽ tự bỏ cờ nháp.
           #
-          # Nhớ kỹ: nháp thì **chưa phải "latest"**. Endpoint cập nhật trỏ
-          # `releases/latest/download/latest.json`, nên chừng nào chưa bấm Publish thì
-          # app của user vẫn báo "đang là bản mới nhất" — không có lỗi nào hiện ra, chỉ
-          # là im lặng. Dựng xong thì phải vào Releases bấm Publish.
+          # Vì sao phải qua trạng thái nháp thay vì đặt thẳng `releaseDraft: false`: cần
+          # bảo đảm bản phát hành chỉ trở thành "latest" **sau khi** asset đã lên đủ. Đặt
+          # `false` là giao điều đó cho thứ tự nội bộ của `tauri-action` — nếu nó tạo bản
+          # phát hành trước rồi mới upload thì có một khoảng thời gian
+          # `releases/latest/download/latest.json` chưa tồn tại, và app của user tình cờ
+          # kiểm tra trong khoảng đó nhận đúng lỗi "Could not fetch a valid release JSON".
+          #
+          # Đi qua nháp rồi tự công khai ở bước cuối thì thứ tự đó do ta quyết định, không
+          # phải đoán. Nháp không tính là "latest", nên khoảng thời gian đó vô hình.
           releaseDraft: true
           prerelease: false
           # `latest.json` là thứ tính năng tự cập nhật đọc. `tauri-action` sinh và tải nó
@@ -156,3 +184,18 @@ jobs:
 
             Kiểm tra ngay lúc gõ mặc định **tắt** — bật trong Cài đặt. Nó cắm hook bàn
             phím toàn máy, nên đó là thứ bạn phải chủ động đồng ý.
+
+      # Bỏ cờ nháp, đúng một lần, sau khi bước trên đã upload đủ installer, `.sig` và
+      # `latest.json`. Đây là thời điểm duy nhất an toàn để bản phát hành trở thành
+      # "latest": trước đó thì updater thấy một "latest" rỗng, sau đó thì không ai thấy gì.
+      #
+      # `--latest` là cần thiết chứ không dư: GitHub chọn "latest" theo ngày phát hành,
+      # nên nếu một bản cũ được công khai sau thì nó chiếm chỗ. Nói thẳng ra vẫn chắc hơn.
+      #
+      # Bước này chạy bằng `gh`, có sẵn trên runner của GitHub. Nó chỉ đổi một cờ, nên
+      # nếu nó thất bại thì mọi asset vẫn còn nguyên, chỉ cần bấm Publish bằng tay.
+      - name: Công khai bản phát hành
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "$env:TAG" --draft=false --latest

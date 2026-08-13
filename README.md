@@ -347,10 +347,19 @@ App này về mặt kỹ thuật là một keylogger, nên đây không phải m
 
 ## Phát hành
 
-```bash
-npm run release                       # dựng + ký tại chỗ
-git tag v0.1.0 && git push --tags     # CI dựng, ký, tạo bản nháp trên GitHub
+```powershell
+.\scripts\bump-version.ps1 0.1.3      # đổi version ở cả 4 file cùng lúc
+git commit -am "chore: bump 0.1.3"
+git push origin main                  # đợi CI xanh trước khi làm bước sau
+git push origin v0.1.3                # CI dựng, ký, và tự công khai bản phát hành
 ```
+
+Đẩy tag là **không lùi lại được**: bản phát hành lên công khai ngay khi dựng xong, không
+còn nút Publish nào để rà lại. Vì thế hai lệnh push phải tách rời — đẩy chung thì `ci.yml`
+chạy song song với bản dựng phát hành, và có thể có bản công khai từ một commit mà test
+vừa báo đỏ.
+
+`npm run release` dựng và ký tại chỗ, dùng khi muốn thử installer mà không phát hành.
 
 `.github/workflows/release.yml` cần bốn secret — hai bắt buộc (khoá ký gói cập nhật),
 hai tuỳ chọn (chứng chỉ ký mã). Bảng đầy đủ nằm ngay đầu file đó.

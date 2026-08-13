@@ -58,17 +58,17 @@ dựng. Hai phép so đó rẻ đến mức không đáng để lệ thuộc và
 Chỉ thử được **sau khi** đã có hai bản phát hành công khai, vì endpoint và khoá công khai
 được nhúng vào file thực thi lúc dựng — không có cách nào chuyển hướng nó lúc chạy.
 
-1. Phát hành `v0.1.0`, **bấm Publish** (nháp không tính là "latest" — xem ghi chú trong
-   `release.yml`), tải installer về cài.
-2. `.\scripts\bump-version.ps1 0.1.1` → commit → tag `v0.1.1` → push tag.
-3. Publish bản `v0.1.1`.
-4. Mở Cài đặt của bản đang cài → **Kiểm tra ngay**. Hoặc chỉ mở app rồi đợi 90 giây
+1. Phát hành một version, tải installer về cài. CI tự công khai bản phát hành sau khi
+   upload xong, không cần bấm gì.
+2. `.\scripts\bump-version.ps1 <version sau>` → commit → push `main`, đợi CI xanh → push tag.
+3. Mở Cài đặt của bản đang cài → **Kiểm tra ngay**. Hoặc chỉ mở app rồi đợi 90 giây
    (`STARTUP_DELAY_SECS`) nếu muốn thử luôn cả đường kiểm tra tự động.
 
-Bốn chỗ hay làm nó im lặng, xếp theo tần suất: bản phát hành còn ở dạng nháp; endpoint
-trỏ sai repo; version trong `tauri.conf.json` không khớp tag; `latest.json` thiếu trong
-bản phát hành (nghĩa là `TAURI_SIGNING_PRIVATE_KEY` chưa đặt, vì `tauri-action` chỉ sinh
-nó khi có chữ ký). Cổng CI ở trên bắt được chỗ thứ hai và thứ ba.
+Bốn chỗ hay làm nó im lặng, xếp theo tần suất: endpoint trỏ sai repo; version trong
+`tauri.conf.json` không khớp tag; bản phát hành còn ở dạng nháp; `latest.json` thiếu
+trong bản phát hành (nghĩa là `TAURI_SIGNING_PRIVATE_KEY` chưa đặt, vì `tauri-action` chỉ
+sinh nó khi có chữ ký). Cổng CI bắt được hai chỗ đầu, và bước tự công khai loại bỏ chỗ
+thứ ba.
 
 ### Nên làm trước khi mời người ngoài dùng
 
