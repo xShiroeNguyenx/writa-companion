@@ -42,6 +42,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Hai thứ này phải đúng *trước khi* dựng, vì cả hai đều là hằng số lúc dựng và cả
+      # hai đều thất bại trong im lặng.
+      #
+      # Endpoint nằm trong file thực thi của user, nên endpoint sai là **không bản cập
+      # nhật nào sửa được** — ai đã cài thì mắc lại vĩnh viễn, phải tự đi tải bản mới.
+      # Đây không phải giả thuyết: v0.1.0 và v0.1.1 đầu tiên đã ra đời với endpoint trỏ
+      # một repo không tồn tại, và triệu chứng duy nhất là một dòng "Could not fetch a
+      # valid release JSON" trong Cài đặt.
+      #
+      # Version lệch tag thì `latest.json` trỏ vào một tên file không tồn tại, và updater
+      # cũng chỉ báo đúng dòng đó.
+      - name: Kiểm endpoint và version trước khi dựng
+        shell: pwsh
+        run: |
+          $conf = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
+
+          $ep = $conf.plugins.updater.endpoints[0]
+          $want = "https://github.com/$env:GITHUB_REPOSITORY/releases/latest/download/latest.json"
+          if ($ep -ne $want) {
+            Write-Output "::error::Endpoint cap nhat khong khop repo dang dung."
+            Write-Output "::error::  tauri.conf.json: $ep"
+            Write-Output "::error::  phai la:         $want"
+            exit 1
+          }
+          Write-Output "endpoint OK  $ep"
+
+          if ($env:GITHUB_REF -like "refs/tags/*") {
+            $tag = $env:GITHUB_REF_NAME
+            if ($tag -ne "v$($conf.version)") {
+              Write-Output "::error::Tag $tag khong khop version $($conf.version) trong tauri.conf.json."
+              Write-Output "::error::Chay: .\scripts\bump-version.ps1 $($tag.TrimStart('v'))"
+              exit 1
+            }
+            Write-Output "version OK   $tag"
+          }
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: actions/setup-node@v4

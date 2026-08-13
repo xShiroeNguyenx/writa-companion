@@ -30,11 +30,28 @@ Những gì đã có và đã đo:
 
 ### Còn chặn v0.1
 
-- [ ] **`git init` + đẩy lên GitHub.** Dự án chưa phải git repo. Endpoint tự cập nhật
-      đang trỏ `ShiroeNguyen/writa`, nên repo phải mang đúng tên đó hoặc phải sửa
-      `tauri.conf.json`.
-- [ ] **Đặt secret cho CI** — xem bảng đầu `.github/workflows/release.yml`.
+- [x] **`git init` + đẩy lên GitHub** — `xShiroeNguyenx/writa-companion`, public.
+- [x] **Đặt secret cho CI** — cả 4 secret đã có; `latest.json` xuất hiện trong bản phát
+      hành, tức chữ ký gói cập nhật hoạt động.
 - [ ] **Thử cài thật** installer một lần: cài, chạy, gỡ.
+- [ ] **Phát hành lại v0.1.0 / v0.1.1** với endpoint đúng — xem mục dưới.
+
+### Endpoint cập nhật từng trỏ sai repo
+
+Hai bản phát hành đầu tiên ra đời với `endpoints` trỏ `ShiroeNguyen/writa`, trong khi repo
+thật là `xShiroeNguyenx/writa-companion`. Triệu chứng duy nhất: một dòng "Could not fetch
+a valid release JSON from the remote" trong Cài đặt. Không log, không mã lỗi, và
+`latest.json` trên GitHub thì hoàn toàn hợp lệ — nên nhìn từ phía server mọi thứ trông
+như đã đúng.
+
+Điều làm nó đắt hơn một lỗi cấu hình thường: **endpoint là hằng số lúc dựng**, nó nằm
+trong file thực thi ở máy user. Endpoint sai thì không bản cập nhật nào sửa được nó — cơ
+chế dùng để vá lỗi lại chính là cơ chế bị lỗi. Ai đã cài phải tự đi tải bản mới, đúng cái
+việc mà tính năng này tồn tại để họ không phải làm.
+
+Nên nó thành một **cổng chặn trong CI**, không phải một dòng ghi chú: `release.yml` so
+`endpoints` với `${{ github.repository }}` và so tag với `version`, thất bại thì không
+dựng. Hai phép so đó rẻ đến mức không đáng để lệ thuộc vào việc con người nhớ.
 
 ### Thử tính năng tự cập nhật
 
@@ -48,9 +65,10 @@ Chỉ thử được **sau khi** đã có hai bản phát hành công khai, vì 
 4. Mở Cài đặt của bản đang cài → **Kiểm tra ngay**. Hoặc chỉ mở app rồi đợi 90 giây
    (`STARTUP_DELAY_SECS`) nếu muốn thử luôn cả đường kiểm tra tự động.
 
-Ba chỗ hay làm nó im lặng, xếp theo tần suất: bản phát hành còn ở dạng nháp; version
-trong `tauri.conf.json` không khớp tag; `latest.json` thiếu trong bản phát hành (nghĩa là
-`TAURI_SIGNING_PRIVATE_KEY` chưa đặt, vì `tauri-action` chỉ sinh nó khi có chữ ký).
+Bốn chỗ hay làm nó im lặng, xếp theo tần suất: bản phát hành còn ở dạng nháp; endpoint
+trỏ sai repo; version trong `tauri.conf.json` không khớp tag; `latest.json` thiếu trong
+bản phát hành (nghĩa là `TAURI_SIGNING_PRIVATE_KEY` chưa đặt, vì `tauri-action` chỉ sinh
+nó khi có chữ ký). Cổng CI ở trên bắt được chỗ thứ hai và thứ ba.
 
 ### Nên làm trước khi mời người ngoài dùng
 
