@@ -1,0 +1,226 @@
+# Vần tiếng Việt — dạng CHỮ VIẾT, KHÔNG mang thanh điệu
+#
+# Thanh điệu KHÔNG khai báo ở đây mà SUY RA bằng luật (xem phonology.rs):
+#   - Vần đóng bằng p / t / c / ch  → chỉ nhận thanh SẮC và NẶNG
+#     ("mất/mặt" hợp lệ; "mat", "màt", "mảt", "mãt" đều không)
+#   - Mọi vần khác                  → nhận cả 6 thanh
+# Suy ra bằng luật thay vì gõ tay giúp loại bỏ một lớp lỗi nhập liệu.
+#
+# Cột 2 — flag:
+#   q = vần chỉ dùng khi âm đầu RỖNG hoặc âm đầu là "qu"
+#       (nhóm vần bắt đầu bằng y: yên, yêu, quyên, quyết, y tế, quy…)
+#
+# Danh sách này được VERIFY LẠI bằng corpus: bất kỳ âm tiết xuất hiện nhiều
+# trong viwiki mà bảng này loại bỏ đều là dấu hiệu bảng còn thiếu vần.
+# Chạy: cargo run -p writa-cli -- verify-syllables
+
+# --- nhân a ---
+a
+ac
+ach
+ai
+am
+an
+ang
+anh
+ao
+ap
+at
+au
+ay
+
+# --- nhân ă (bắt buộc có âm cuối) ---
+ăc
+ăm
+ăn
+ăng
+ăp
+ăt
+
+# --- nhân â (bắt buộc có âm cuối) ---
+âc
+âm
+ân
+âng
+âp
+ât
+âu
+ây
+
+# --- nhân e ---
+e
+ec
+em
+en
+eng
+eo
+ep
+et
+
+# --- nhân ê ---
+ê
+êc
+êch
+êm
+ên
+êng
+ênh
+êp
+êt
+êu
+
+# --- nhân i ---
+i
+ich
+im
+in
+inh
+ip
+it
+iu
+
+# --- nhân o ---
+o
+oc
+oi
+om
+on
+ong
+op
+ot
+
+# --- nhân ô ---
+ô
+ôc
+ôi
+ôm
+ôn
+ông
+ôp
+ôt
+
+# --- nhân ơ ---
+ơ
+ơi
+ơm
+ơn
+ơp
+ơt
+
+# --- nhân u ---
+u
+uc
+ui
+um
+un
+ung
+up
+ut
+
+# --- nhân ư ---
+ư
+ưc
+ưi
+ưng
+ưt
+ưu
+
+# --- nhân y đứng riêng ---
+# KHÔNG gắn cờ q: rất nhiều âm đầu đi với vần này — kỹ, lý, mỹ, tỷ, hy, sĩ, vy,
+# quy, và cả âm đầu rỗng (y tế). Cờ q chỉ đúng cho nhóm "yê" bên dưới, nơi chữ
+# y là âm đệm chứ không phải nhân.
+y
+
+# --- nguyên âm đôi ia / iê ---
+ia
+iêc
+iêm
+iên
+iêng
+iêp
+iêt
+iêu
+
+# --- nguyên âm đôi yê (yên, yêu, quyết…) ---
+yêm	q
+yên	q
+yêng	q
+yêt	q
+yêu	q
+
+# --- nguyên âm đôi ua / uô ---
+ua
+uôc
+uôi
+uôm
+uôn
+uông
+uôt
+
+# --- nguyên âm đôi ưa / ươ ---
+ưa
+ươc
+ươi
+ươm
+ươn
+ương
+ươp
+ươt
+ươu
+
+# --- âm đệm o + a ---
+oa
+oac
+oach
+oai
+oam
+oan
+oang
+oanh
+oao
+oat
+oay
+
+# --- âm đệm o + ă ---
+oăc
+oăm
+oăn
+oăng
+oăt
+
+# --- âm đệm o + e ---
+oe
+oem
+oen
+oeo
+oet
+
+# --- âm đệm u + â ---
+uân
+uâng
+uât
+uây
+
+# --- âm đệm u + ê ---
+uê
+uêch
+uênh
+
+# --- âm đệm u + y ---
+uy
+uych
+uyn
+uynh
+uyt
+uya
+uyu
+uyên
+uyêt
+
+# --- âm đệm u + ơ ---
+uơ
+
+# --- oo: từ vay mượn & phương ngữ (xoong, coóc, boong) ---
+oo
+ooc
+oong

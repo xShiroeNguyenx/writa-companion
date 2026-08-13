@@ -1,0 +1,15 @@
+[package]
+name = "ime-probe"
+description = "P0 Spike — do hành vi của WH_KEYBOARD_LL khi UniKey/EVKey compose tiếng Việt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+windows = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Threading",
+    "Win32_System_Console",
+] }

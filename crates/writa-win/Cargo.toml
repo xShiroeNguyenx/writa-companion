@@ -1,0 +1,32 @@
+[package]
+name = "writa-win"
+description = "P0/P4 — tích hợp Windows: đọc selection, ghi text, định vị caret, hook bàn phím"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+writa-core = { path = "../writa-core" }
+windows = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Accessibility",
+    "Win32_System_Com",
+    "Win32_System_Console",
+    "Win32_System_DataExchange",
+    "Win32_System_Memory",
+    "Win32_System_Threading",
+    "Win32_System_Ole",
+    "Win32_Graphics_Gdi",
+] }
+
+[[bin]]
+name = "win-probe"
+path = "src/bin/win_probe.rs"
+
+[[bin]]
+name = "hook-probe"
+path = "src/bin/hook_probe.rs"

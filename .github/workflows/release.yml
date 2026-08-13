@@ -1,0 +1,116 @@
+# Dựng installer và tạo bản phát hành khi đẩy tag `v*`.
+#
+# ## Bí mật cần đặt trước
+#
+# | Secret | Bắt buộc | Việc |
+# |---|---|---|
+# | `TAURI_SIGNING_PRIVATE_KEY` | ✅ | Nội dung `.keys/writa-update.key`. Không có nó thì tính năng tự cập nhật không hoạt động — app sẽ từ chối gói không ký. |
+# | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | ✅ | Mật khẩu của khoá trên. |
+# | `WINDOWS_CERT_PFX_BASE64` | ⬜ | Chứng chỉ ký mã dạng `.pfx`, mã hoá base64. Thiếu thì bản phát hành **không ký** — vẫn chạy được, chỉ hiện "Unknown publisher". |
+# | `WINDOWS_CERT_PASSWORD` | ⬜ | Mật khẩu của `.pfx`. |
+#
+# Xuất `.pfx` từ máy đang có chứng chỉ:
+#
+#   .\scripts\sign.ps1 -ExportPfx
+#
+# ## Vì sao chữ ký mã là tuỳ chọn còn chữ ký cập nhật thì không
+#
+# Chữ ký mã hiện tại là **tự ký**, nên nó không làm SmartScreen im lặng — thiếu nó chỉ
+# đổi dòng chữ trong hộp thoại cảnh báo. Chữ ký gói cập nhật thì khác hẳn: nó là thứ
+# duy nhất ngăn một máy chủ bị chiếm quyền đẩy mã tuỳ ý vào máy user, và Writa từ chối
+# mọi gói không khớp khoá công khai nhúng sẵn.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag để dựng, ví dụ v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
+
+      - run: npm ci
+
+      # Chứng chỉ được nạp vào kho của *user đang chạy runner*, không phải kho máy —
+      # runner là máy dùng một lần, và kho user không cần quyền quản trị.
+      - name: Nạp chứng chỉ ký mã (nếu có)
+        id: cert
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.WINDOWS_CERT_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        run: |
+          if (-not $env:PFX) {
+            Write-Output "Khong co WINDOWS_CERT_PFX_BASE64 - se dung ban KHONG KY."
+            "signed=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          $path = Join-Path $env:RUNNER_TEMP "writa.pfx"
+          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:PFX))
+          $pw = ConvertTo-SecureString -String $env:PFX_PASSWORD -AsPlainText -Force
+          $c = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $pw
+          Remove-Item $path -Force
+          Write-Output "Da nap chung chi: $($c.Thumbprint)"
+          "signed=true" >> $env:GITHUB_OUTPUT
+
+      - name: Dựng và phát hành
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Writa ${{ github.ref_name }}"
+          releaseDraft: true
+          prerelease: false
+          # `latest.json` là thứ tính năng tự cập nhật đọc. `tauri-action` sinh và tải nó
+          # lên cùng bản phát hành, khớp với endpoint trong `tauri.conf.json`.
+          includeUpdaterJson: true
+          args: ${{ steps.cert.outputs.signed == 'true' && '--config src-tauri/tauri.signed.conf.json' || '' }}
+          releaseBody: |
+            ## Cài đặt
+
+            Tải `Writa_*_x64-setup.exe` bên dưới rồi chạy.
+
+            **Windows sẽ hiện cảnh báo "Windows protected your PC".** Đó là vì Writa
+            chưa có uy tín tải về, không phải vì mã có vấn đề. Bấm **More info → Run
+            anyway**. Chi tiết vì sao, và vì sao tiền không mua được điều đó, xem
+            [SPIKE_RESULTS.md](../blob/main/SPIKE_RESULTS.md) mục Spike 6.
+
+            ## Sau khi cài
+
+            Writa nằm ở **khay hệ thống**, không mở cửa sổ nào.
+
+            | Phím tắt | Việc |
+            |---|---|
+            | `Ctrl+Alt+V` | Kiểm tra chính tả đoạn đang bôi đen |
+            | `Ctrl+Alt+D` | Thêm dấu cho đoạn đang bôi đen |
+            | `Tab` | Áp dụng gợi ý inline (khi bật kiểm tra lúc gõ) |
+
+            Kiểm tra ngay lúc gõ mặc định **tắt** — bật trong Cài đặt. Nó cắm hook bàn
+            phím toàn máy, nên đó là thứ bạn phải chủ động đồng ý.

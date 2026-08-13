@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Writa",
+  "version": "0.1.0",
+  "identifier": "vn.writa.desktop",
+  "build": {
+    "beforeDevCommand": "npm run build",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../ui/dist"
+  },
+  "app": {
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    },
+    "windows": [
+      {
+        "label": "popup",
+        "url": "popup.html",
+        "title": "Writa",
+        "width": 520,
+        "height": 240,
+        "visible": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "shadow": true
+      },
+      {
+        "label": "inline",
+        "url": "inline.html",
+        "title": "Writa",
+        "width": 300,
+        "height": 40,
+        "visible": false,
+        "focus": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "shadow": false
+      }
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "dialog": false,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdFRDdFNDdFQUI0QTMzRTAKUldUZ00wcXJmdVRYZmd6SGg2aFVheEtRZDhWSUUwSVNsSXA0VnBiajV1NEZ6T25RUS9aQnJXaGoK",
+      "endpoints": [
+        "https://github.com/ShiroeNguyen/writa/releases/latest/download/latest.json"
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "createUpdaterArtifacts": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "copyright": "MIT",
+    "publisher": "Shiroe Nguyễn",
+    "shortDescription": "Sửa lỗi chính tả tiếng Việt",
+    "longDescription": "Kiểm tra chính tả và thêm dấu tiếng Việt ở mọi ô nhập trên Windows. Chạy hoàn toàn offline."
+  }
+}

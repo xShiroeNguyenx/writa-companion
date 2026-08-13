@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Writa — Cài đặt</title>
+  </head>
+  <body class="settings">
+    <header>
+      <img src="/icon.png" alt="" />
+      <div>
+        <h1>Writa</h1>
+        <p>Sửa lỗi chính tả tiếng Việt ở mọi ô nhập · chạy hoàn toàn offline</p>
+      </div>
+      <button class="state" id="toggle-pause">Tạm dừng</button>
+    </header>
+
+    <main>
+      <section>
+        <h2>Phím tắt</h2>
+        <div class="card">
+          <label class="row">
+            <span class="label">
+              <b>Kiểm tra đoạn đang bôi đen</b>
+              <small>Bôi đen ở bất kỳ app nào rồi bấm phím tắt này.</small>
+            </span>
+            <input type="text" id="hotkey-check" size="18" spellcheck="false" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Thêm dấu cho đoạn đang bôi đen</b>
+              <small>Biến <i>toi di hoc</i> thành <i>tôi đi học</i>.</small>
+            </span>
+            <input type="text" id="hotkey-diacritic" size="18" spellcheck="false" />
+          </label>
+        </div>
+        <p class="note">
+          Cú pháp: <kbd>Ctrl</kbd>, <kbd>Alt</kbd>, <kbd>Shift</kbd>, <kbd>Super</kbd>
+          nối bằng dấu <code>+</code>, ví dụ <code>Ctrl+Alt+V</code>. Nếu phím tắt đã bị
+          app khác chiếm, Writa sẽ báo và giữ lại phím cũ.
+        </p>
+      </section>
+
+      <section>
+        <h2>Kiểm tra ngay lúc gõ</h2>
+        <div class="card">
+          <label class="row">
+            <span class="label">
+              <b>Bật kiểm tra realtime</b>
+              <small
+                >Gạch lỗi ngay khi bạn gõ xong một từ, ở mọi app. Bật lên là Writa cắm
+                một <b>hook bàn phím toàn máy</b> — đọc thêm phần Quyền riêng tư bên
+                dưới trước khi bật.</small
+              >
+            </span>
+            <input type="checkbox" id="realtime" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Phím áp dụng gợi ý (dự phòng)</b>
+              <small
+                >Cách chính là bấm <kbd>Tab</kbd> khi bong bóng đang hiện — Writa chỉ
+                chiếm <kbd>Tab</kbd> đúng trong khoảnh khắc đó, hết gợi ý là nhả ngay.
+                Ô này là đường dự phòng cho app nào cần <kbd>Tab</kbd> cho việc khác.
+                <kbd>Esc</kbd> hoặc bấm chuột để bỏ qua.</small
+              >
+            </span>
+            <input type="text" id="hotkey-accept" size="18" spellcheck="false" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Tự sửa lỗi chắc chắn, không hỏi</b>
+              <small
+                >Chỉ áp dụng cho âm tiết <i>không tồn tại</i> trong tiếng Việt
+                (<i>nghành</i>, <i>ngiên</i>) — loại lỗi bắt bằng một phép tra bảng nên
+                precision ~100%. Lỗi nhầm từ như <i>chia sẽ</i> thì <b>không bao giờ</b>
+                tự sửa, dù bật cờ này.</small
+              >
+            </span>
+            <input type="checkbox" id="auto-fix" />
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Kiểm tra</h2>
+        <div class="card">
+          <label class="row">
+            <span class="label">
+              <b>Độ nhạy khi bắt lỗi nhầm từ</b>
+              <small
+                >Loại lỗi mọi âm tiết đều đúng nhưng tổ hợp thì sai: <i>chia sẽ</i>,
+                <i>xử dụng</i>, <i>sữa lỗi</i>. Đây là loại lỗi người Việt mắc nhiều
+                nhất.</small
+              >
+              <small id="margin-note"></small>
+            </span>
+            <select id="margin">
+              <option value="9">Rất thận trọng</option>
+              <option value="6">Cân bằng</option>
+              <option value="4.5">Nhạy</option>
+              <option value="3">Rất nhạy</option>
+            </select>
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Báo âm tiết chưa từng thấy</b>
+              <small
+                >Đúng ngữ âm nhưng không có trong corpus. Bắt thêm được lỗi hiếm, đổi
+                lại hay báo oan từ khẩu ngữ và phương ngữ. Mặc định tắt.</small
+              >
+            </span>
+            <input type="checkbox" id="flag-unattested" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Dấu câu và khoảng trắng</b>
+              <small>Khoảng trắng đôi, khoảng trắng trước dấu phẩy, ngoặc không cân.</small>
+            </span>
+            <input type="checkbox" id="check-punctuation" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Viết hoa đầu câu</b>
+              <small
+                >Mặc định tắt: trong chat, không viết hoa là chuẩn mực chứ không phải
+                lỗi.</small
+              >
+            </span>
+            <input type="checkbox" id="check-capitalization" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Ký hiệu kiểu chữ</b>
+              <small>Đề xuất đổi <code>...</code> thành <code>…</code>. Sở thích văn phong.</small>
+            </span>
+            <input type="checkbox" id="typographic-style" />
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Từ điển cá nhân</h2>
+        <div class="card">
+          <div class="row">
+            <input
+              type="text"
+              id="dict-input"
+              class="label"
+              aria-label="Từ cần thêm vào từ điển cá nhân"
+              placeholder="Thêm từ Writa không được báo lỗi…"
+              spellcheck="false"
+            />
+            <button id="dict-add">Thêm</button>
+          </div>
+          <div class="chips" id="dict-chips"></div>
+        </div>
+        <p class="note">
+          Tên riêng, thuật ngữ chuyên ngành, tên công ty. Cũng thêm được ngay từ popup
+          bằng nút “Bỏ qua từ này”.
+        </p>
+      </section>
+
+      <section>
+        <h2>App Writa không đụng tới</h2>
+        <div class="card">
+          <div class="row">
+            <input
+              type="text"
+              id="block-input"
+              class="label"
+              aria-label="Tên file thực thi của app cần chặn"
+              placeholder="tên-app.exe…"
+              spellcheck="false"
+            />
+            <button id="block-add">Thêm</button>
+          </div>
+          <div class="chips" id="block-chips"></div>
+        </div>
+        <p class="note">
+          Ngoài danh sách trên, Writa <b>luôn</b> im lặng ở các app sau và ở mọi ô mật
+          khẩu, kể cả khi bạn xoá chúng khỏi đây:
+          <span id="default-blocklist"></span>
+        </p>
+      </section>
+
+      <section>
+        <h2>Khởi động và cập nhật</h2>
+        <div class="card">
+          <label class="row">
+            <span class="label">
+              <b>Chạy cùng Windows</b>
+              <small>Mở sẵn ở khay hệ thống mỗi lần đăng nhập.</small>
+            </span>
+            <input type="checkbox" id="autostart" />
+          </label>
+          <label class="row">
+            <span class="label">
+              <b>Tự kiểm tra bản mới</b>
+              <small
+                >Chỉ <b>kiểm tra</b> là tự động — tải và cài thì bạn phải bấm. Writa cắm
+                hook bàn phím và ghi text vào ô nhập, nên khi có bản vá cho lỗi làm hỏng
+                text thì nó cần tới được tay bạn.</small
+              >
+            </span>
+            <input type="checkbox" id="auto-update" />
+          </label>
+          <div class="row">
+            <span class="label">
+              <b>Phiên bản</b>
+              <small id="update-status">—</small>
+            </span>
+            <button id="check-update">Kiểm tra ngay</button>
+          </div>
+        </div>
+        <p class="note">
+          Gói cập nhật phải mang chữ ký khớp khoá công khai nhúng sẵn trong app; bản
+          không khớp bị từ chối trước khi ghi đè bất cứ thứ gì. Đó là thứ ngăn một máy
+          chủ bị chiếm quyền đẩy mã tuỳ ý vào máy bạn.
+        </p>
+      </section>
+
+      <section>
+        <h2>Engine</h2>
+        <div class="card">
+          <div class="stats" id="stats"></div>
+        </div>
+        <p class="note">
+          Writa không gửi gì lên mạng. Toàn bộ từ điển và mô hình ngôn ngữ nằm trong file
+          thực thi; không có text nào được lưu xuống đĩa hay gửi đi đâu. Kiểm chứng được
+          bằng <code>netstat</code>, và bằng mã nguồn.
+        </p>
+      </section>
+    </main>
+
+    <div id="toast"></div>
+    <script type="module" src="/src/settings.ts"></script>
+  </body>
+</html>

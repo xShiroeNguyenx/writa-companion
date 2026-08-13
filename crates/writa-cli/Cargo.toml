@@ -1,0 +1,10 @@
+[package]
+name = "writa-cli"
+description = "Công cụ dòng lệnh: verify bảng ngữ âm, eval harness, benchmark"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+writa-core = { path = "../writa-core" }

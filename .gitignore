@@ -1,0 +1,41 @@
+/target
+**/target
+
+# Corpus tải về — quá lớn để commit, tái tạo được bằng scripts/fetch-corpus
+/data/raw/
+
+# Artifact sinh ra từ data pipeline
+/data/build/
+
+# Bộ test tiêm lỗi. KHÔNG commit vì nó chứa **nguyên văn câu Wikipedia**, còn dự án thì
+# tự đặt ra chính sách chỉ ship số đếm chứ không ship câu gốc. Tái tạo bằng:
+#   writa-cli make-eval data/raw/sentences-heldout.txt data/eval/injected.tsv
+/data/eval/
+
+# Log của spike
+/spikes/**/*.log
+/spikes/**/out/
+
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+
+# Tauri sinh ra lúc build (schema quyền, tài nguyên Windows)
+/src-tauri/gen/
+
+# Khoá ký gói cập nhật. Mất nó là mất khả năng phát hành bản mới, và bất kỳ ai có nó
+# cũng ký được một bản "cập nhật" giả rồi đẩy vào máy mọi user. Không bao giờ commit.
+/.keys/
+
+# Bản sao lưu lexicon khi thử ngưỡng cắt tỉa khác
+/data/lexicon-backup/
+/data/lexicon-v2/
+
+# Chứng chỉ xuất ra để nạp vào CI. `.pfx` chứa KHOÁ RIÊNG.
+/writa-signing.pfx
+/writa-signing.pfx.base64.txt
+/writa-signing.cer
+
+# Log của probe
+/ime-probe.log

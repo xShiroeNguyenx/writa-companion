@@ -1,0 +1,25 @@
+{
+  "name": "writa",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sửa lỗi chính tả tiếng Việt ở mọi ô nhập trên Windows",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "tauri": "tauri",
+    "prebuild": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prebuild.ps1",
+    "app": "npm run prebuild && tauri dev",
+    "app:build": "npm run prebuild && tauri build",
+    "release": "npm run prebuild && tauri build --config src-tauri/tauri.signed.conf.json"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.5"
+  }
+}

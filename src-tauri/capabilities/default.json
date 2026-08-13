@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Quyền tối thiểu cho hai cửa sổ của Writa. Mọi thao tác cửa sổ đều đi qua lệnh Rust riêng, nên phía JS không cần quyền nào ngoài mặc định.",
+  "windows": ["settings", "popup", "inline"],
+  "permissions": ["core:default", "updater:default", "process:allow-restart"]
+}

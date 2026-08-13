@@ -1,0 +1,93 @@
+# Luật nhầm lẫn chính tả tiếng Việt — dạng máy đọc.
+#
+# Bản dành cho người đọc kèm nghĩa từng cặp: data/confusion/notes.md
+#
+# ## Vì sao là LUẬT CẤU TRÚC, không phải danh sách cặp từ
+#
+# PLAN.md đặt mục tiêu 500-1000 cặp từ curate tay. Nhưng lỗi tiếng Việt không xảy
+# ra ở mức TỪ, nó xảy ra ở mức THÀNH PHẦN âm tiết: người viết nhầm thanh hỏi với
+# ngã, nhầm âm đầu s với x, nhầm âm cuối n với ng. Một luật `s ↔ x` sinh ra được
+# mọi cặp mà bảng tay phải liệt kê từng dòng — `sản/xản`, `sẻ/xẻ`, `sương/xương`,
+# `sót/xót`… và cả những cặp chưa ai nghĩ tới.
+#
+# Điều làm cách này an toàn: candidate sinh ra được lọc qua L1 (có hợp lệ ngữ âm
+# không) rồi L2 (có ai dùng thật không). Nên luật rộng KHÔNG dẫn tới đề xuất rác —
+# nó chỉ mở rộng vùng tìm kiếm, còn hai lớp kia siết lại.
+#
+# ## Định dạng
+#
+#   kind <TAB> from <TAB> to [<TAB> variant]
+#
+# Mọi luật đều SONG HƯỚNG: `s x` bao cả x→s.
+#
+#   onset    thay toàn bộ âm đầu
+#   coda     thay phụ âm cuối của vần
+#   nucleus  thay một đoạn trong vần (nguyên âm)
+#   tone     thay thanh điệu; tên thanh: ngang huyền sắc hỏi ngã nặng
+#
+# Cột 4 = `variant`: hai dạng ĐỀU ĐÚNG theo hai quy chuẩn khác nhau. Luật loại này
+# vẫn dùng để SỬA âm tiết sai, nhưng KHÔNG BAO GIỜ dùng để phát hiện lỗi real-word
+# — vì cả hai dạng đúng thì không có gì để báo. Đo thực tế: thiếu dấu này, engine
+# báo `kì → kỳ` 49 lần trên 50 nghìn câu, toàn bộ là báo oan.
+
+# =============================================================================
+# THANH ĐIỆU — lỗi số một của người Việt
+# =============================================================================
+# Hỏi/ngã chiếm phần lớn lỗi chính tả tiếng Việt và gần như không tool nào xử lý.
+# Đây là lý do tồn tại của Writa.
+tone	hỏi	ngã
+
+# =============================================================================
+# ÂM ĐẦU
+# =============================================================================
+
+# --- Luật chính tả (lỗi này L1 bắt được, luật ở đây để SỬA) ---
+# c trước a ă â o ô ơ u ư | k trước e ê i y
+onset	c	k
+# g trước a ă â o ô ơ u ư | gh trước e ê i
+onset	g	gh
+# ng trước a ă â o ô ơ u ư | ngh trước e ê i  →  sửa `nghành`, `ngiên`
+onset	ng	ngh
+
+# --- Nhầm do phát âm ---
+onset	s	x
+onset	ch	tr
+onset	r	d
+onset	r	gi
+onset	d	gi
+# l/n — đặc trưng miền Bắc: `lên`/`nên`, `lo`/`no`
+onset	l	n
+# g/r — đặc trưng miền Nam: /r/ phát âm thành [ɣ], viết ra thành `gòi` (=`rồi`),
+# `gành` (=`rành`). Rất phổ biến trong chat.
+onset	g	r
+# v/d — đặc trưng miền Nam
+onset	v	d
+onset	n	nh
+
+# =============================================================================
+# ÂM CUỐI — đặc trưng miền Nam
+# =============================================================================
+# `hoàn`/`hoàng`, `bàn`/`bàng`, `quan`/`quang`
+coda	n	ng
+# `mất`/`mấc`, `tất`/`tấc`, `lượt`/`lược`
+coda	t	c
+coda	nh	n
+coda	ch	t
+
+# =============================================================================
+# NGUYÊN ÂM
+# =============================================================================
+# i/y — `kỹ`=`kĩ`, `lý`=`lí`, `quý`=`quí` đều được chấp nhận, nên đánh dấu variant.
+# Không đánh dấu thì engine báo `kì → kỳ` như một lỗi, mà đó là lỗi của engine.
+nucleus	i	y	variant
+nucleus	iê	ia
+nucleus	ươ	ưa
+nucleus	uô	ua
+nucleus	o	ô
+# ao/au — `đào thải` viết thành `đàu thải`, `cao` thành `cau`. Hai vần này gần nhau cả
+# về phát âm (miền Nam) lẫn về phím (o/u cách nhau hai phím).
+nucleus	ao	au
+nucleus	ă	â
+nucleus	e	ê
+# u/ư — lỗi gõ Telex hay gặp vì `w` là phím phụ
+nucleus	u	ư

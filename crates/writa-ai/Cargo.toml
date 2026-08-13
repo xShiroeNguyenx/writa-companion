@@ -1,0 +1,16 @@
+[package]
+name = "writa-ai"
+description = "L6 — lớp AI opt-in. Crate DUY NHẤT trong workspace có quyền ra mạng."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+writa-core = { path = "../writa-core" }
+# ureq: HTTP client thuần Rust, blocking, không kéo theo async runtime.
+# Rust không có SDK Anthropic chính thức nên tài liệu chỉ định gọi HTTP thô.
+ureq = { version = "3", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

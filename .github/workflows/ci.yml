@@ -1,0 +1,78 @@
+# Kiểm tra mọi thay đổi.
+#
+# Chạy trên `windows-latest` vì Writa là app Windows: `writa-win` gọi thẳng Win32, và
+# một CI trên Linux sẽ bỏ qua đúng phần dễ vỡ nhất.
+#
+# CI **không** dựng installer và **không** ký. Đó là việc của `release.yml`, và tách ra
+# giữ cho vòng lặp kiểm tra ở mức vài phút thay vì hơn mười phút.
+#
+# Những gì CI KHÔNG đo được, và vì sao:
+#
+#   - `writa-cli scan` / `eval` / `eval-realtime` / `eval-diacritic` cần corpus trong
+#     `data/raw/`, vốn nặng 1 GB và không commit. Các số chất lượng trong README vì thế
+#     là **đo tay**, không phải cổng CI. Muốn biến chúng thành cổng thì phải lưu sẵn một
+#     tập held-out nhỏ — xem ROADMAP.
+#   - Tương thích app, ghi ngược, và hành vi bộ gõ đều cần một phiên làm việc tương tác
+#     thật. Xem SPIKE_RESULTS.md.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # Bản dựng CI không cần thông tin gỡ lỗi; bỏ đi tiết kiệm phần lớn thời gian liên kết.
+  CARGO_PROFILE_DEV_DEBUG: 0
+
+jobs:
+  check:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cài Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          # `writa-core` nhúng ~26 MB TSV bằng `include_str!`, nên mỗi lần lexicon đổi là
+          # phải biên dịch lại. Tách khoá cache theo nội dung lexicon để lần đổi đó không
+          # làm hỏng cache của mọi crate khác.
+          key: lexicon-${{ hashFiles('data/lexicon/*.tsv') }}
+
+      - run: npm ci
+
+      - name: Định dạng
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Kiểu TypeScript + dựng frontend
+        run: npm run build
+
+      - name: Dựng app (không đóng gói)
+        run: cargo build --release -p writa-app
+
+      # Đây là lời hứa cốt lõi của sản phẩm, nên nó phải là một cổng chứ không phải một
+      # dòng trong README: engine không được có bất kỳ dependency mạng nào.
+      - name: Canh ranh giới offline
+        run: cargo test -p writa-core core_has_no_network_dependency

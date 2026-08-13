@@ -1,0 +1,26 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/writa-core",
+    "crates/writa-cli",
+    "crates/writa-ai",
+    "crates/writa-win",
+    "spikes/ime-probe",
+    "src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/NGUYENKHANH/writa"
+# 1.82 vì dùng Option::is_none_or — đọc rõ hơn map_or(true, …) đáng kể.
+rust-version = "1.82"
+
+[workspace.dependencies]
+unicode-normalization = "0.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

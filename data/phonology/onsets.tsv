@@ -1,0 +1,46 @@
+# Âm đầu tiếng Việt — dạng CHỮ VIẾT (không phải âm vị)
+#
+# Ta mô hình hoá chính tả, không mô hình hoá ngữ âm. Vì vậy c/k/q là ba âm đầu
+# riêng biệt (dù cùng âm vị /k/), g/gh riêng, ng/ngh riêng — và chính RÀNG BUỘC
+# PHÂN BỐ giữa chúng là thứ bắt được lỗi "nghành", "ngiên", "ke/ce".
+#
+# Cột 2 = lớp nguyên âm mà âm đầu được đứng trước, xét theo CHỮ CÁI ĐẦU của vần:
+#   F = chỉ trước nguyên âm trước:  e ê i y
+#   B = chỉ trước nguyên âm sau/giữa: a ă â o ô ơ u ư
+#   A = trước mọi vần
+#
+# Quy tắc chính tả tiếng Việt được mã hoá ở đây:
+#   c/k   : c trước a ă â o ô ơ u ư   |  k trước e ê i y
+#   g/gh  : g trước a ă â o ô ơ u ư   |  gh trước e ê i
+#   ng/ngh: ng trước a ă â o ô ơ u ư  |  ngh trước e ê i
+#
+# => "nghành" bị loại vì ngh(F) + ành(bắt đầu 'a', lớp B) không hợp.
+# => "ngiên"  bị loại vì ng(B)  + iên(bắt đầu 'i', lớp F) không hợp.
+
+b	A
+c	B
+ch	A
+d	A
+đ	A
+g	B
+gh	F
+gi	A
+h	A
+k	F
+kh	A
+l	A
+m	A
+n	A
+ng	B
+ngh	F
+nh	A
+p	A
+ph	A
+qu	A
+r	A
+s	A
+t	A
+th	A
+tr	A
+v	A
+x	A

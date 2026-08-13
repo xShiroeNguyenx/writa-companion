@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Writa</title>
+  </head>
+  <body class="popup">
+    <div class="bar">
+      <span class="title" id="title">Writa</span>
+      <span class="app" id="app"></span>
+    </div>
+
+    <div id="list"></div>
+    <div id="preview" hidden></div>
+    <div id="error" hidden></div>
+
+    <div class="actions">
+      <button class="primary" id="apply">Áp dụng</button>
+      <button id="copy">Chép</button>
+      <button id="close">Đóng</button>
+      <span class="hint"><kbd>Enter</kbd> áp dụng · <kbd>Esc</kbd> đóng</span>
+    </div>
+
+    <script type="module" src="/src/popup.ts"></script>
+  </body>
+</html>

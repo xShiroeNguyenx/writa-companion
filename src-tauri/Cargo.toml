@@ -1,0 +1,45 @@
+[package]
+name = "writa-app"
+description = "P2 — vỏ ứng dụng: khay hệ thống, phím tắt toàn cục, popup gợi ý, cài đặt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "writa_app"
+crate-type = ["lib"]
+
+# Tauri quyết định "chạy dev server hay dùng asset nhúng" bằng feature này:
+# `tauri/build.rs` đặt `dev = !custom_protocol`. Theo quy ước gốc, feature này KHÔNG
+# bật mặc định và chỉ được Tauri CLI thêm vào lúc `tauri build`.
+#
+# Ta bật mặc định, vì quy ước đó là một cái bẫy im lặng: `cargo build --release` cho
+# ra một binary **trông như bản phát hành** nhưng lại trỏ vào `http://localhost:5183`.
+# Không có server đó thì cửa sổ hiện ra trắng trơn với dòng "can't reach this page" —
+# và vì popup mặc định ẩn, triệu chứng duy nhất user thấy là "bấm phím tắt không có
+# gì xảy ra". Đúng lỗi này đã xảy ra một lần và tốn cả vòng gỡ rối.
+#
+# Cái giá: `tauri dev` không còn hot-reload frontend, phải chạy lại. Với hai cửa sổ
+# và 10 KB JavaScript thì đó là cái giá rẻ để đổi lấy việc mọi cách build đều cho ra
+# một app chạy được.
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+writa-core = { path = "../crates/writa-core" }
+writa-win = { path = "../crates/writa-win" }
+
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
